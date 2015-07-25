@@ -100,6 +100,14 @@ Game.prototype.startGame = function () {
   this.compare();
 }
 
+Game.prototype.gameOver  = function (loser) {
+  this.players.forEach(function (player) {
+    if (loser.indexOf(player) < 0) {
+      console.log(player.name + " wins!");
+    }
+  })
+}
+
 Game.prototype.compare = function () {
   var loser = [];
   var playingCards = [];
@@ -111,11 +119,7 @@ Game.prototype.compare = function () {
     }
   });
   if (loser.length === this.players.length - 1) {
-    this.players.forEach(function (player) {
-      if (loser.indexOf(player) < 0) {
-        console.log(player.name + " wins!");
-      }
-    })
+    this.gameOver(loser);
   } else {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
@@ -218,11 +222,7 @@ Game.prototype.war = function (bucket) {
     }
   });
   if (loser.length === this.players.length - 1) {
-    this.players.forEach(function (player) {
-      if (loser.indexOf(player) < 0) {
-        console.log(player.name + " wins!");
-      }
-    })
+    this.gameOver(loser);
   } else {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
@@ -299,5 +299,5 @@ Player.prototype.start = function () {
 }
 
 var war = new Game();
-war.setGame(25);
+war.setGame(2);
 war.startGame();
