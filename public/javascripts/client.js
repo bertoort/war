@@ -108,33 +108,43 @@ Game.prototype.compare = function () {
   if (loser.length === this.players.length - 1) {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
+        console.log(player.hand.length + player.collection.length);
         console.log(player.name + " wins!");
+      }
+      else {
+        console.log('losers: ', player.hand.length + player.collection.length);
       }
     })
   } else {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
         playingCards.push(player.currentCard);
+        player.playedCard = player.currentCard;
         player.hand.splice(0,1);
-        playingScores.push(player.currentCard.score);
+        player.currentCard = [];
+        playingScores.push(player.playedCard.score);
       }
     })
     var highestScore = Math.max.apply(null, playingScores);
+    playingScores = [];
     var highest = playingCards.filter(function (card) {
       if (card.score === highestScore) {
         return card
       }
     });
-    if (highest.length > this.players.length - 1) {
+    if (highest.length > 1) {
       console.log('war!');
       this.war(playingCards);
     } else {
       this.players.forEach(function (player) {
-        playingCards.forEach(function (card) {
-          if (player.currentCard.score === highestScore) {
-            winner = player;
-          }
-        });
+        if (loser.indexOf(player) < 0) {
+          playingCards.forEach(function (card) {
+            if (player.playedCard.score === highestScore) {
+              winner = player;
+            }
+          });
+        }
+        player.playedCard = null;
         if (player.hand.length === 0 && player.collection.length > 0) {
           player.collection.forEach(function (card) {
             player.hand.push(card)
@@ -148,6 +158,13 @@ Game.prototype.compare = function () {
       playingCards.forEach(function (card) {
         winner.collection.push(card);
       })
+      if (winner.hand.length === 0 && winner.collection.length > 0) {
+        winner.collection.forEach(function (card) {
+          winner.hand.push(card)
+        })
+        winner.collection = [];
+      }
+      winner.currentCard = winner.hand[0];
       this.compare();
     }
   }
@@ -196,24 +213,31 @@ Game.prototype.war = function (newCards) {
   if (loser.length === this.players.length - 1) {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
+        console.log(player.hand.length + player.collection.length + bucket.length);
         console.log(player.name + " wins!");
+      }
+      else {
+        console.log('losers: ', player.hand.length + player.collection.length);
       }
     })
   } else {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
         playingCards.push(player.currentCard);
+        player.playedCard = player.currentCard;
         player.hand.splice(0,1);
-        playingScores.push(player.currentCard.score);
+        player.currentCard = [];
+        playingScores.push(player.playedCard.score);
       }
     })
     var highestScore = Math.max.apply(null, playingScores);
+    playingScores = [];
     var highest = playingCards.filter(function (card) {
       if (card.score === highestScore) {
         return card
       }
     })
-    if (highest.length > this.players.length - 1) {
+    if (highest.length > 1) {
       playingCards.forEach(function (card) {
         bucket.push(card);
       })
@@ -221,12 +245,15 @@ Game.prototype.war = function (newCards) {
       this.war(bucket);
     } else {
       this.players.forEach(function (player) {
-        playingCards.forEach(function (card) {
-          if (player.currentCard.score === highestScore) {
-            winner = player;
-          }
-        });
-        if (player.hand.length === 0) {
+        if (loser.indexOf(player) < 0) {
+          playingCards.forEach(function (card) {
+            if (player.playedCard.score === highestScore) {
+              winner = player;
+            }
+          });
+        }
+        player.playedCard = null;
+        if (player.hand.length === 0 && player.collection.length > 0) {
           player.collection.forEach(function (card) {
             player.hand.push(card)
           })
@@ -242,6 +269,13 @@ Game.prototype.war = function (newCards) {
       bucket.forEach(function (card) {
         winner.collection.push(card);
       })
+      if (winner.hand.length === 0 && winner.collection.length > 0) {
+        winner.collection.forEach(function (card) {
+          winner.hand.push(card)
+        })
+        winner.collection = [];
+      }
+      winner.currentCard = winner.hand[0];
       this.compare();
     }
   }
@@ -258,5 +292,5 @@ Player.prototype.start = function () {
 }
 
 var war = new Game();
-war.setGame(2);
+war.setGame(7);
 war.startGame();
