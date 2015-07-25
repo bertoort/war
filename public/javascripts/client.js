@@ -108,11 +108,7 @@ Game.prototype.compare = function () {
   if (loser.length === this.players.length - 1) {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
-        console.log(player.hand.length + player.collection.length);
         console.log(player.name + " wins!");
-      }
-      else {
-        console.log('losers: ', player.hand.length + player.collection.length);
       }
     })
   } else {
@@ -213,11 +209,7 @@ Game.prototype.war = function (newCards) {
   if (loser.length === this.players.length - 1) {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
-        console.log(player.hand.length + player.collection.length + bucket.length);
         console.log(player.name + " wins!");
-      }
-      else {
-        console.log('losers: ', player.hand.length + player.collection.length);
       }
     })
   } else {
