@@ -115,6 +115,7 @@ Game.prototype.compare = function () {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
         playingCards.push(player.currentCard);
+        player.hand.splice(0,1);
         playingScores.push(player.currentCard.score);
       }
     })
@@ -124,8 +125,8 @@ Game.prototype.compare = function () {
         return card
       }
     });
-    if (highest.length > 1) {
-      console.log('before: '+ playingCards.length);
+    if (highest.length > this.players.length - 1) {
+      console.log('war!');
       this.war(playingCards);
     } else {
       this.players.forEach(function (player) {
@@ -134,7 +135,6 @@ Game.prototype.compare = function () {
             winner = player;
           }
         });
-        player.hand.splice(0,1);
         if (player.hand.length === 0 && player.collection.length > 0) {
           player.collection.forEach(function (card) {
             player.hand.push(card)
@@ -154,7 +154,6 @@ Game.prototype.compare = function () {
 }
 
 Game.prototype.war = function (newCards) {
-  console.log('after: ' + newCards.length);
   var bucket = newCards;
   var winner;
   var loser = [];
@@ -162,7 +161,7 @@ Game.prototype.war = function (newCards) {
   var playingScores = [];
   var winner;
   this.players.forEach(function (player) {
-    if (player.hand.length > 4) {
+    if (player.hand.length > 3) {
       var cards = player.hand.splice(0,3);
       cards.forEach(function (card) {
         bucket.push(card)
@@ -173,7 +172,7 @@ Game.prototype.war = function (newCards) {
         player.hand.push(card);
       })
       player.collection = [];
-      if (player.hand.length > 4) {
+      if (player.hand.length > 3) {
         var cards = player.hand.splice(0,3);
         cards.forEach(function (card) {
           bucket.push(card)
@@ -204,6 +203,7 @@ Game.prototype.war = function (newCards) {
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
         playingCards.push(player.currentCard);
+        player.hand.splice(0,1);
         playingScores.push(player.currentCard.score);
       }
     })
@@ -213,11 +213,11 @@ Game.prototype.war = function (newCards) {
         return card
       }
     })
-    if (highest.length > 1) {
+    if (highest.length > this.players.length - 1) {
       playingCards.forEach(function (card) {
         bucket.push(card);
       })
-      console.log('again: ' + bucket.length);
+      console.log('double war!');
       this.war(bucket);
     } else {
       this.players.forEach(function (player) {
@@ -226,7 +226,6 @@ Game.prototype.war = function (newCards) {
             winner = player;
           }
         });
-        player.hand.splice(0,1);
         if (player.hand.length === 0) {
           player.collection.forEach(function (card) {
             player.hand.push(card)
