@@ -6,4 +6,8 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'War!!' });
 });
 
+router.post('/', function(req, res, next) {
+  res.redirect('/');
+});
+
 module.exports = router;

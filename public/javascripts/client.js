@@ -77,6 +77,9 @@ Game.prototype.setGame = function(num){
   if (players > 12) {
     players = 12;
     console.log('can only have a maximun of 12 players');
+  } else if (players < 2) {
+    players = 2
+    console.log('can only have a minimun of 2 players');
   }
   for(i=0;i<players; i++){
     var name = 'player' + (i + 1);
@@ -104,6 +107,13 @@ Game.prototype.gameOver  = function (loser) {
   this.players.forEach(function (player) {
     if (loser.indexOf(player) < 0) {
       console.log(player.name + " wins!");
+      var winnerDiv = document.querySelector('#winner');
+      var info = document.createElement('div');
+      var p = document.createElement('h3');
+      info.setAttribute('class', 'info');
+      p.innerHTML = player.name + " wins the game!";
+      info.appendChild(p);
+      winnerDiv.appendChild(info);
     }
   })
 }
@@ -121,8 +131,24 @@ Game.prototype.compare = function () {
   if (loser.length === this.players.length - 1) {
     this.gameOver(loser);
   } else {
+    var game = document.querySelector('.game');
+    var board = document.createElement('div');
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
+        var image = document.createElement('div');
+        var playerPlay = document.createElement('div');
+        var name = document.createElement('h4');
+        var cardsLeft = document.createElement('p');
+        image.setAttribute('class', 'card');
+        image.innerHTML = player.currentCard.card[0];
+        name.innerHTML = player.name;
+        cardsLeft.innerHTML = "cards: " + (player.hand.length + player.collection.length);
+        playerPlay.setAttribute('class', 'play');
+        playerPlay.appendChild(name);
+        playerPlay.appendChild(cardsLeft);
+        playerPlay.appendChild(image);
+        board.appendChild(playerPlay);
+        game.appendChild(board);
         playingCards.push(player.currentCard);
         player.playedCard = player.currentCard;
         player.hand.splice(0,1);
@@ -141,6 +167,13 @@ Game.prototype.compare = function () {
       this.players.forEach(function (e) {
         console.log('war: ', e.name, e.hand.length + e.collection.length);
       })
+      var info = document.createElement('div');
+      var p = document.createElement('p');
+      info.setAttribute('class', 'info');
+      p.innerHTML = "war!!";
+      info.appendChild(p);
+      board.appendChild(info);
+      wars++;
       this.war(playingCards);
     } else {
       this.players.forEach(function (player) {
@@ -177,6 +210,13 @@ Game.prototype.compare = function () {
       this.players.forEach(function (e) {
         console.log('another round: ', e.name, e.hand.length + e.collection.length);
       })
+      var info = document.createElement('div');
+      var p = document.createElement('p');
+      info.setAttribute('class', 'info');
+      p.innerHTML = winner.name + ": wins!";
+      info.appendChild(p);
+      board.appendChild(info);
+      rounds++;
       this.compare();
     }
   }
@@ -222,10 +262,35 @@ Game.prototype.war = function (bucket) {
     }
   });
   if (loser.length === this.players.length - 1) {
+    var game = document.querySelector('.game');
+    var board = document.createElement('div');
+    var info = document.createElement('div');
+    var p = document.createElement('p');
+    info.setAttribute('class', 'info');
+    p.innerHTML = 'not enough cards to war';
+    info.appendChild(p);
+    board.appendChild(info);
+    game.appendChild(board);
     this.gameOver(loser);
   } else {
+    var game = document.querySelector('.game');
+    var board = document.createElement('div');
     this.players.forEach(function (player) {
       if (loser.indexOf(player) < 0) {
+        var image = document.createElement('div');
+        var playerPlay = document.createElement('div');
+        var name = document.createElement('h4');
+        var cardsLeft = document.createElement('p');
+        image.setAttribute('class', 'card');
+        image.innerHTML = player.currentCard.card[0];
+        name.innerHTML = player.name;
+        cardsLeft.innerHTML = "cards: " + (player.hand.length + player.collection.length);
+        playerPlay.setAttribute('class', 'play');
+        playerPlay.appendChild(name);
+        playerPlay.appendChild(cardsLeft);
+        playerPlay.appendChild(image);
+        board.appendChild(playerPlay);
+        game.appendChild(board);
         playingCards.push(player.currentCard);
         player.playedCard = player.currentCard;
         player.hand.splice(0,1);
@@ -245,8 +310,15 @@ Game.prototype.war = function (bucket) {
         bucket.push(card);
       })
       this.players.forEach(function (e) {
+        wars++;
         console.log('double war: ', e.name, e.hand.length + e.collection.length);
       })
+      var info = document.createElement('div');
+      var p = document.createElement('p');
+      info.setAttribute('class', 'info');
+      p.innerHTML = "war again!!";
+      info.appendChild(p);
+      board.appendChild(info);
       this.war(bucket);
     } else {
       this.players.forEach(function (player) {
@@ -283,6 +355,13 @@ Game.prototype.war = function (bucket) {
         winner.collection = [];
       }
       winner.currentCard = winner.hand[0];
+      rounds++;
+      var info = document.createElement('div');
+      var p = document.createElement('p');
+      info.setAttribute('class', 'info');
+      p.innerHTML = winner.name + " wins the war!";
+      info.appendChild(p);
+      board.appendChild(info);
       this.compare();
     }
   }
@@ -298,6 +377,29 @@ Player.prototype.start = function () {
   this.currentCard = this.hand[0];
 }
 
-var war = new Game();
-war.setGame(2);
-war.startGame();
+var rounds = 0;
+var wars = 0;
+var submit = document.querySelector('.submit');
+submit.addEventListener('click', function (e) {
+  var input = document.querySelector('.number');
+  var war = new Game();
+  war.setGame(input.value);
+  war.startGame();
+  var result = document.querySelector('.result');
+  var info = document.createElement('div');
+  var p = document.createElement('h4');
+  info.setAttribute('class', 'info');
+  p.innerHTML = 'rounds: '+ rounds + ' wars: ' + wars;
+  info.appendChild(p);
+  result.appendChild(info);
+  console.log('rounds: '+ rounds, 'wars: ' + wars);
+  var reset = document.querySelector('.reset');
+  reset.style.display = 'inline-block';
+  var form = document.querySelector('.form');
+  form.style.display = 'none';
+  var top = document.querySelector('.top');
+  top.style.display = 'inline-block';
+  var bottom = document.querySelector('.bottom');
+  bottom.style.display = 'inline-block';
+  e.preventDefault();
+});

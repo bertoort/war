@@ -6,3 +6,20 @@ body {
 a {
   color: #00B7FF;
 }
+
+.card {
+  display: inline-block;
+  font-size: 1000%;
+}
+
+.play, .info {
+  display: inline-block;
+}
+
+.reset {
+  display: none;
+}
+
+.top, .bottom {
+  display: none;
+}
