@@ -70,13 +70,14 @@ function shuffle(array) {
 function Game(){
   this.players = [];
   this.deck = deck;
+  this.atWarPlayers = [];
 }
 
 Game.prototype.setGame = function(num){
   var players = num || 2;
-  if (players > 12) {
-    players = 12;
-    console.log('can only have a maximun of 12 players');
+  if (players > 9) {
+    players = 9;
+    console.log('can only have a maximun of 9 players');
   } else if (players < 2) {
     players = 2
     console.log('can only have a minimun of 2 players');
@@ -106,7 +107,6 @@ Game.prototype.startGame = function () {
 Game.prototype.gameOver  = function (loser) {
   this.players.forEach(function (player) {
     if (loser.indexOf(player) < 0) {
-      console.log(player.name + " wins!");
       var winnerDiv = document.querySelector('#winner');
       var info = document.createElement('div');
       var p = document.createElement('h3');
@@ -118,19 +118,45 @@ Game.prototype.gameOver  = function (loser) {
   })
 }
 
+Game.prototype.sortPlayers = function () {
+  this.players.sort(function (a,b) {
+    if (a.name < b.name)
+    return -1
+    if (a.name > b.name)
+    return 1
+    return 0
+  })
+}
+
 Game.prototype.compare = function () {
   var loser = [];
   var playingCards = [];
   var playingScores = [];
   var winner;
+  this.sortPlayers();
+  //check for lost players and refreshes hand for active players
   this.players.forEach(function (player) {
     if (player.hand.length === 0 && player.collection.length === 0) {
       loser.push(player)
+    } else {
+      if (player.hand.length === 0 && player.collection.length > 0) {
+        player.collection = shuffle(player.collection);
+        player.collection.forEach(function (card) {
+          player.hand.push(card)
+        })
+        player.collection = [];
+      }
+      if (player.hand.length > 0) {
+        player.currentCard = player.hand[0];
+      }
+      player.playedCard = null;
     }
   });
+  // game over if all but one player lost
   if (loser.length === this.players.length - 1) {
     this.gameOver(loser);
   } else {
+    //active players play cards and it's displayed
     var game = document.querySelector('.game');
     var board = document.createElement('div');
     this.players.forEach(function (player) {
@@ -142,6 +168,11 @@ Game.prototype.compare = function () {
         image.setAttribute('class', 'card');
         image.innerHTML = player.currentCard.card[0];
         name.innerHTML = player.name;
+        playingCards.push(player.currentCard);
+        player.playedCard = player.currentCard;
+        player.hand.splice(0,1);
+        player.currentCard = [];
+        playingScores.push(player.playedCard.score);
         cardsLeft.innerHTML = "cards: " + (player.hand.length + player.collection.length);
         playerPlay.setAttribute('class', 'play');
         playerPlay.appendChild(name);
@@ -149,13 +180,9 @@ Game.prototype.compare = function () {
         playerPlay.appendChild(image);
         board.appendChild(playerPlay);
         game.appendChild(board);
-        playingCards.push(player.currentCard);
-        player.playedCard = player.currentCard;
-        player.hand.splice(0,1);
-        player.currentCard = [];
-        playingScores.push(player.playedCard.score);
       }
     })
+    //checks for war
     var highestScore = Math.max.apply(null, playingScores);
     playingScores = [];
     var highest = playingCards.filter(function (card) {
@@ -164,18 +191,30 @@ Game.prototype.compare = function () {
       }
     });
     if (highest.length > 1) {
-      this.players.forEach(function (e) {
-        console.log('war: ', e.name, e.hand.length + e.collection.length);
-      })
+      //sets players to war status and starts war
+      wars++;
+      var length = this.players.length;
+      var j = 0;
+      var movingPlayers = [];
+      for (var i = 0; i < length; i++) {
+        if (this.players[j].playedCard !== null && this.players[j].playedCard.score === highestScore) {
+          movingPlayers.push(this.players.splice(j, 1));
+        } else {
+          j++
+        }
+      }
+      movingPlayers.forEach(function (player) {
+        this.atWarPlayers.push(player[0]);
+      }.bind(this));
       var info = document.createElement('div');
       var p = document.createElement('p');
       info.setAttribute('class', 'info');
       p.innerHTML = "war!!";
       info.appendChild(p);
       board.appendChild(info);
-      wars++;
       this.war(playingCards);
     } else {
+      // finds winner, gives cards and repeats round
       this.players.forEach(function (player) {
         if (loser.indexOf(player) < 0) {
           playingCards.forEach(function (card) {
@@ -184,31 +223,9 @@ Game.prototype.compare = function () {
             }
           });
         }
-        player.playedCard = null;
-        if (player.hand.length === 0 && player.collection.length > 0) {
-          player.collection = shuffle(player.collection);
-          player.collection.forEach(function (card) {
-            player.hand.push(card)
-          })
-          player.collection = [];
-        }
-        if (player.hand.length > 0) {
-          player.currentCard = player.hand[0];
-        }
       })
       playingCards.forEach(function (card) {
         winner.collection.push(card);
-      })
-      if (winner.hand.length === 0 && winner.collection.length > 0) {
-        winner.collection = shuffle(winner.collection);
-        winner.collection.forEach(function (card) {
-          winner.hand.push(card)
-        })
-        winner.collection = [];
-      }
-      winner.currentCard = winner.hand[0];
-      this.players.forEach(function (e) {
-        console.log('another round: ', e.name, e.hand.length + e.collection.length);
       })
       var info = document.createElement('div');
       var p = document.createElement('p');
@@ -228,7 +245,8 @@ Game.prototype.war = function (bucket) {
   var playingCards = [];
   var playingScores = [];
   var winner;
-  this.players.forEach(function (player) {
+  // at war players bury three cards, if they can't, they are losers
+  this.atWarPlayers.forEach(function (player) {
     if (player.hand.length > 3) {
       var cards = player.hand.splice(0,3);
       cards.forEach(function (card) {
@@ -261,108 +279,210 @@ Game.prototype.war = function (bucket) {
       player.hand = [];
     }
   });
-  if (loser.length === this.players.length - 1) {
-    var game = document.querySelector('.game');
-    var board = document.createElement('div');
-    var info = document.createElement('div');
-    var p = document.createElement('p');
-    info.setAttribute('class', 'info');
-    p.innerHTML = 'not enough cards to war';
-    info.appendChild(p);
-    board.appendChild(info);
-    game.appendChild(board);
-    this.gameOver(loser);
-  } else {
-    var game = document.querySelector('.game');
-    var board = document.createElement('div');
-    this.players.forEach(function (player) {
-      if (loser.indexOf(player) < 0) {
-        var image = document.createElement('div');
-        var playerPlay = document.createElement('div');
-        var name = document.createElement('h4');
-        var cardsLeft = document.createElement('p');
-        image.setAttribute('class', 'card');
-        image.innerHTML = player.currentCard.card[0];
-        name.innerHTML = player.name;
-        cardsLeft.innerHTML = "cards: " + (player.hand.length + player.collection.length);
-        playerPlay.setAttribute('class', 'play');
-        playerPlay.appendChild(name);
-        playerPlay.appendChild(cardsLeft);
-        playerPlay.appendChild(image);
-        board.appendChild(playerPlay);
-        game.appendChild(board);
-        playingCards.push(player.currentCard);
-        player.playedCard = player.currentCard;
-        player.hand.splice(0,1);
-        player.currentCard = [];
-        playingScores.push(player.playedCard.score);
-      }
-    })
-    var highestScore = Math.max.apply(null, playingScores);
-    playingScores = [];
-    var highest = playingCards.filter(function (card) {
-      if (card.score === highestScore) {
-        return card
-      }
-    })
-    if (highest.length > 1) {
-      playingCards.forEach(function (card) {
-        bucket.push(card);
-      })
-      this.players.forEach(function (e) {
-        wars++;
-        console.log('double war: ', e.name, e.hand.length + e.collection.length);
-      })
-      var info = document.createElement('div');
-      var p = document.createElement('p');
-      info.setAttribute('class', 'info');
-      p.innerHTML = "war again!!";
-      info.appendChild(p);
-      board.appendChild(info);
-      this.war(bucket);
-    } else {
+  // checks if all players are losers due to not enough cards
+  if (loser.length === this.atWarPlayers.length) {
+    // checks if not all players are at war
+    if (this.players.length > 0) {
+      var highestScore = 0;
+      var highestPlayers = 0;
       this.players.forEach(function (player) {
-        if (loser.indexOf(player) < 0) {
-          playingCards.forEach(function (card) {
-            if (player.playedCard.score === highestScore) {
-              winner = player;
-            }
-          });
-        }
-        player.playedCard = null;
-        if (player.hand.length === 0 && player.collection.length > 0) {
-          player.collection = shuffle(player.collection);
-          player.collection.forEach(function (card) {
-            player.hand.push(card)
-          })
-          player.collection = [];
-        }
-        if (player.hand.length > 0) {
-          player.currentCard = player.hand[0];
+        if (player.playedCard !== null && player.playedCard.score > highestScore) {
+          highestScore = player.playedCard.score;
         }
       })
-      playingCards.forEach(function (card) {
-        bucket.push(card);
+      this.players.forEach(function (player) {
+        if (player.playedCard !== null && player.playedCard.score === highestScore) {
+          highestPlayers++
+        }
       })
-      bucket.forEach(function (card) {
-        winner.collection.push(card);
-      })
-      if (winner.hand.length === 0 && winner.collection.length > 0) {
-        winner.collection = shuffle(winner.collection);
-        winner.collection.forEach(function (card) {
-          winner.hand.push(card)
+      // gives cards to the next highest card before war and restarts the rounds
+      if (highestPlayers < 2) {
+        this.players.forEach(function (player) {
+          if (player.playedCard !== null && player.playedCard.score === highestScore) {
+            winner = player.name
+            bucket.forEach(function (card) {
+              player.collection.push(card);
+            })
+          }
         })
-        winner.collection = [];
+        this.atWarPlayers.forEach(function (player) {
+          this.players.push(player);
+        }.bind(this))
+        this.atWarPlayers = [];
+        var game = document.querySelector('.game');
+        var board = document.createElement('div');
+        var info = document.createElement('div');
+        var p = document.createElement('p');
+        info.setAttribute('class', 'info');
+        p.innerHTML = 'not enough cards for war, ' + winner + ' wins the cards';
+        info.appendChild(p);
+        board.appendChild(info);
+        game.appendChild(board);
+        this.compare();
+      } else {
+        // starts another war for next highest card before war
+        var winners = [];
+        this.players.forEach(function (player) {
+          if (player.playedCard !== null && player.playedCard.score === highestScore) {
+            winners.push(player)
+          }
+        })
+        this.atWarPlayers.forEach(function (player) {
+          this.players.push(player);
+        }.bind(this))
+        this.atWarPlayers = [];
+        winners.forEach(function (player) {
+          this.atWarPlayers.push(player)
+        }.bind(this));
+        this.atWarPlayers.forEach(function (player) {
+          if (player.hand.length === 0 && player.collection.length > 0) {
+            player.collection = shuffle(player.collection);
+            player.collection.forEach(function (card) {
+              player.hand.push(card)
+            })
+            player.collection = [];
+          }
+          if (player.hand.length > 0) {
+            player.currentCard = player.hand[0];
+          }
+          player.playedCard = null;
+        })
+        var game = document.querySelector('.game');
+        var board = document.createElement('div');
+        var info = document.createElement('div');
+        var p = document.createElement('p');
+        info.setAttribute('class', 'info');
+        p.innerHTML = 'not enough cards for war, another war started!';
+        info.appendChild(p);
+        board.appendChild(info);
+        game.appendChild(board);
+        this.war(bucket);
       }
-      winner.currentCard = winner.hand[0];
-      rounds++;
+    } else {
+      //if all players were at war and don't have enough cards, game is drawn
+      var game = document.querySelector('.game');
+      var board = document.createElement('div');
       var info = document.createElement('div');
       var p = document.createElement('p');
       info.setAttribute('class', 'info');
-      p.innerHTML = winner.name + " wins the war!";
+      p.innerHTML = 'What?! theres a draw!!';
       info.appendChild(p);
       board.appendChild(info);
+      game.appendChild(board);
+    }
+  } else {
+    //gives the cards to the winner and restarts rounds
+    if (loser.length === this.atWarPlayers.length - 1) {
+      var game = document.querySelector('.game');
+      var board = document.createElement('div');
+      var info = document.createElement('div');
+      var p = document.createElement('p');
+      info.setAttribute('class', 'info');
+      p.innerHTML = 'not enough cards to war';
+      info.appendChild(p);
+      board.appendChild(info);
+      game.appendChild(board);
+      this.atWarPlayers.forEach(function (player) {
+        if (loser.indexOf(player) < 0) {
+          bucket.forEach(function (card) {
+            player.collection.push(card);
+          })
+        }
+        this.players.push(player);
+      }.bind(this))
+      this.atWarPlayers = [];
       this.compare();
+    } else {
+      // at war players play cards and displays them
+      var game = document.querySelector('.game');
+      var board = document.createElement('div');
+      this.atWarPlayers.forEach(function (player) {
+        if (loser.indexOf(player) < 0) {
+          var image = document.createElement('div');
+          var playerPlay = document.createElement('div');
+          var name = document.createElement('h4');
+          var cardsLeft = document.createElement('p');
+          image.setAttribute('class', 'card');
+          image.innerHTML = player.currentCard.card[0];
+          name.innerHTML = player.name;
+          cardsLeft.innerHTML = "cards: " + (player.hand.length + player.collection.length);
+          playerPlay.setAttribute('class', 'play');
+          playerPlay.appendChild(name);
+          playerPlay.appendChild(cardsLeft);
+          playerPlay.appendChild(image);
+          board.appendChild(playerPlay);
+          game.appendChild(board);
+          playingCards.push(player.currentCard);
+          player.playedCard = player.currentCard;
+          player.hand.splice(0,1);
+          player.currentCard = [];
+          playingScores.push(player.playedCard.score);
+        }
+      })
+      var highestScore = Math.max.apply(null, playingScores);
+      playingScores = [];
+      var highest = playingCards.filter(function (card) {
+        if (card.score === highestScore) {
+          return card
+        }
+      })
+      if (highest.length > 1) {
+        //starts another war with at war players
+        playingCards.forEach(function (card) {
+          bucket.push(card);
+        })
+        wars++;
+        var info = document.createElement('div');
+        var p = document.createElement('p');
+        info.setAttribute('class', 'info');
+        p.innerHTML = "war again!!";
+        info.appendChild(p);
+        board.appendChild(info);
+        var length = this.atWarPlayers.length;
+        var j = 0;
+        var movingPlayers = [];
+        for (var i = 0; i < length; i++) {
+          if (this.atWarPlayers[j].playedCard.score !== highestScore) {
+            movingPlayers.push(this.atWarPlayers.splice(j, 1));
+          } else {
+            j++
+          }
+        }
+        movingPlayers.forEach(function (player) {
+          this.players.push(player[0]);
+        }.bind(this));
+        this.war(bucket);
+      } else {
+        // gives cards to at war winner and restarts rounds
+        this.atWarPlayers.forEach(function (player) {
+          if (loser.indexOf(player) < 0) {
+            playingCards.forEach(function (card) {
+              if (player.playedCard.score === highestScore) {
+                winner = player;
+              }
+            });
+          }
+          player.playedCard = null;
+        });
+        playingCards.forEach(function (card) {
+          bucket.push(card);
+        })
+        bucket.forEach(function (card) {
+          winner.collection.push(card);
+        })
+        this.atWarPlayers.forEach(function (player) {
+          this.players.push(player);
+        }.bind(this));
+        this.atWarPlayers = [];
+        rounds++;
+        var info = document.createElement('div');
+        var p = document.createElement('p');
+        info.setAttribute('class', 'info');
+        p.innerHTML = winner.name + " wins the war!";
+        info.appendChild(p);
+        board.appendChild(info);
+        this.compare();
+      }
     }
   }
 }
@@ -376,6 +496,8 @@ function Player(name) {
 Player.prototype.start = function () {
   this.currentCard = this.hand[0];
 }
+
+//starts game with the push of a button
 
 var rounds = 0;
 var wars = 0;
@@ -392,7 +514,6 @@ submit.addEventListener('click', function (e) {
   p.innerHTML = 'rounds: '+ rounds + ' wars: ' + wars;
   info.appendChild(p);
   result.appendChild(info);
-  console.log('rounds: '+ rounds, 'wars: ' + wars);
   var reset = document.querySelector('.reset');
   reset.style.display = 'inline-block';
   var form = document.querySelector('.form');

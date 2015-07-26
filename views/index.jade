@@ -4,7 +4,7 @@ block content
   h1= title
   form.form
     label Number of players: 
-      input.number(type='number')
+      input.number(type='number', value=2, max='9', min='2')
     input.submit(type='submit', value='play!')
   form(method='post')
     input.reset(type='submit', value='reset')
