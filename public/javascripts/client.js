@@ -173,7 +173,7 @@ Game.prototype.compare = function () {
         player.hand.splice(0,1);
         player.currentCard = [];
         playingScores.push(player.playedCard.score);
-        cardsLeft.innerHTML = "cards: " + (player.hand.length + player.collection.length);
+        cardsLeft.innerHTML = "deck: " + (player.hand.length + player.collection.length);
         playerPlay.setAttribute('class', 'play');
         playerPlay.appendChild(name);
         playerPlay.appendChild(cardsLeft);
@@ -405,7 +405,7 @@ Game.prototype.war = function (bucket) {
           image.setAttribute('class', 'card');
           image.innerHTML = player.currentCard.card[0];
           name.innerHTML = player.name;
-          cardsLeft.innerHTML = "cards: " + (player.hand.length + player.collection.length);
+          cardsLeft.innerHTML = "deck: " + (player.hand.length + player.collection.length);
           playerPlay.setAttribute('class', 'play');
           playerPlay.appendChild(name);
           playerPlay.appendChild(cardsLeft);

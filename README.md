@@ -1,4 +1,6 @@
-# war
+# WAR!!
 
-### Card game simulator
-What is it good for? find out:
+### Card Game Simulator
+What is it good for?
+
+[Check it out!](https://immense-fjord-5827.herokuapp.com)
