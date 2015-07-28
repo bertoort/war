@@ -1,17 +1,18 @@
 extends layout
 
 block content
-  a.right(href='/stats') data stats
+  a.right(href='/') simulator
   h3= title
   form.form
+    label Number of Games:
+      input.games(type='number', value=100, max='1000', min='10')
     label Number of players: 
       input.number(type='number', value=2, max='9', min='2')
-    input.submit(type='submit', value='play!')
-  form(method='post')
+    input.analyze(type='submit', value='analyze!')
+  form(action='/stats',method='post')
     input.reset(type='submit', value='reset')
   .result
   a.bottom(href='#winner') see winner
   .game
-  #winner
   a.top(href='#top') back to top
   

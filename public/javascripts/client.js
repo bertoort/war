@@ -77,10 +77,8 @@ Game.prototype.setGame = function(num){
   var players = num || 2;
   if (players > 9) {
     players = 9;
-    console.log('can only have a maximun of 9 players');
   } else if (players < 2) {
     players = 2
-    console.log('can only have a minimun of 2 players');
   }
   for(i=0;i<players; i++){
     var name = 'player' + (i + 1);

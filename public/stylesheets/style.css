@@ -23,3 +23,7 @@ a {
 .top, .bottom {
   display: none;
 }
+
+.right {
+  float: right;
+}
