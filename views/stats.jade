@@ -9,8 +9,5 @@ block content
     input.analyze(type='submit', value='analyze!')
   form(action='/stats',method='post')
     input.reset(type='submit', value='reset')
-  .result
-  a.bottom(href='#winner') see winner
-  .game
-  a.top(href='#top') back to top
-  
+  .gif
+    img(src='/images/loading.gif' alt='loading' width='100px' height='100px')

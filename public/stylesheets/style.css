@@ -20,8 +20,12 @@ a {
   display: none;
 }
 
-.top, .bottom {
+.top, .bottom, .gif {
   display: none;
+}
+
+.gif {
+  margin: 100px;
 }
 
 .right {

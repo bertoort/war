@@ -524,3 +524,25 @@ if (submit) {
     e.preventDefault();
   });
 }
+
+var analyze = document.querySelector('.analyze');
+if (analyze) {
+  analyze.addEventListener('click', function (e) {
+    var games = document.querySelector('.games');
+    var gif = document.querySelector('.gif');
+    gif.style.display = 'inline-block';
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', '/simulate?games=' + games.value)
+    xhr.addEventListener('load', function () {
+      var response = xhr.response;
+      gif.style.display = 'none';
+      var reset = document.querySelector('.reset');
+      reset.style.display = 'inline-block';
+      var form = document.querySelector('.form');
+      form.style.display = 'none';
+      console.log(response);
+    })
+    xhr.send();
+    e.preventDefault();
+  });
+}
