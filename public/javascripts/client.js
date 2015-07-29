@@ -531,7 +531,13 @@ if (analyze) {
     var games = document.querySelector('.games');
     var row = document.querySelector('.row');
     var gif = document.querySelector('.gif');
+    var dataTitle = document.querySelector('.data');
     var gamesNumber = games.value;
+    if (gamesNumber > 10000) {
+      gamesNumber = 10000
+    } else if (gamesNumber < 10) {
+      gamesNumber = 10
+    }
     gif.style.display = 'inline-block';
     var xhr = new XMLHttpRequest();
     xhr.open('get', '/simulate?games=' + gamesNumber)
@@ -545,20 +551,26 @@ if (analyze) {
       reset.style.display = 'inline-block';
       graphs.style.display = 'inline-block';
       row.style.display = 'block';
-      var data = [ {letter: "rounds" + " " + response.rounds, frequency: response.rounds},
+      dataTitle.innerHTML = "Total Averages from " + gamesNumber + " games"
+      var data = [
+                   {letter: "rounds" + " " + response.rounds, frequency: response.rounds},
                    {letter: "wars" + " " + response.wars, frequency: response.wars},
-                   {letter: "doubleWars" + " " + response.doubleWars, frequency: response.doubleWars}
+                   {letter: "double wars" + " " + response.doubleWars, frequency: response.doubleWars}
+                   ];
+      var data1 = [
+                   {letter: "longest round" + " " + response.longestRound, frequency: response.longestRound},
+                   {letter: "shortest round" + " " + response.shortestRound, frequency: response.shortestRound},
                    ];
       var data2 = [
-                   {letter: '2-2 Aces' + " " + response.aces[2].total, frequency: response.aces[2].total},
-                   {letter: '1-3 Aces' + " " + response.aces[1].total, frequency: response.aces[1].total},
                    {letter: '0-4 Aces' + " " + response.aces[0].total, frequency: response.aces[0].total},
+                   {letter: '1-3 Aces' + " " + response.aces[1].total, frequency: response.aces[1].total},
+                   {letter: '2-2 Aces' + " " + (response.aces[2].total/2), frequency: (response.aces[2].total/2)},
                   ];
       //Bar Graph 1
 
       var margin = {top: 20, right: 20, bottom: 30, left: 40},
           width = 500 - margin.left - margin.right,
-          height = 400 - margin.top - margin.bottom;
+          height = 300 - margin.top - margin.bottom;
 
       var x = d3.scale.ordinal()
           .rangeRoundBands([0, width], .1);
@@ -575,14 +587,14 @@ if (analyze) {
           .orient("left")
           .ticks(10);
 
-      var svg = d3.select(".graph1").append("svg")
+      var svg = d3.select(".graph").append("svg")
           .attr("width", width + margin.left + margin.right)
           .attr("height", height + margin.top + margin.bottom)
         .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       x.domain(data.map(function(d) { return d.letter; }));
-      y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+      y.domain([0, d3.max(data, function(d) { return Number(d.frequency); })]);
 
       svg.append("g")
           .attr("class", "x axis")
@@ -611,8 +623,62 @@ if (analyze) {
       // bar graph 2
 
       var margin = {top: 20, right: 20, bottom: 30, left: 40},
-          width = 500 - margin.left - margin.right,
-          height = 300 - margin.top - margin.bottom;
+          width = 400 - margin.left - margin.right,
+          height = 200 - margin.top - margin.bottom;
+
+      var x = d3.scale.ordinal()
+          .rangeRoundBands([0, width], .1);
+
+      var y = d3.scale.linear()
+          .range([height, 0]);
+
+      var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient("bottom");
+
+      var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient("left")
+          .ticks(10);
+
+      var svg = d3.select(".graph1").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      x.domain(data1.map(function(d) { return d.letter; }));
+      y.domain([0, d3.max(data1, function(d) { return Number(d.frequency); })]);
+
+      svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis);
+
+      svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Total");
+
+      svg.selectAll(".bar")
+          .data(data1)
+        .enter().append("rect")
+          .attr("class", "bar")
+          .attr("x", function(d) { return x(d.letter); })
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d.frequency); })
+          .attr("height", function(d) { return height - y(d.frequency); });
+
+      // bar graph 3
+
+      var margin = {top: 20, right: 20, bottom: 30, left: 40},
+          width = 400 - margin.left - margin.right,
+          height = 200 - margin.top - margin.bottom;
 
       var x = d3.scale.ordinal()
           .rangeRoundBands([0, width], .1);
@@ -636,7 +702,7 @@ if (analyze) {
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       x.domain(data2.map(function(d) { return d.letter; }));
-      y.domain([0, d3.max(data2, function(d) { return d.frequency; })]);
+      y.domain([0, d3.max(data2, function(d) { return Number(d.frequency); })]);
 
       svg.append("g")
           .attr("class", "x axis")
@@ -672,7 +738,6 @@ if (analyze) {
       loadLiquidFillGauge("twoGauge", response.aces[2].won);
       loadLiquidFillGauge("threeGauge", response.aces[3].won);
       loadLiquidFillGauge("fourGauge", response.aces[4].won);
-      console.log(response, gamesNumber, response.aces[0].start);
     })
     xhr.send();
     e.preventDefault();

@@ -12,7 +12,7 @@ a {
   font-size: 1000%;
 }
 
-.play, .info, svg, .graph1, .graph2, .gauges {
+.play, .info, svg, .graph1, .graph2, .graph, .gauges {
   display: inline-block;
 }
 
