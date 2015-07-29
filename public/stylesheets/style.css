@@ -12,15 +12,19 @@ a {
   font-size: 1000%;
 }
 
-.play, .info {
+.play, .info, svg, .graph1, .graph2, .gauges {
   display: inline-block;
+}
+
+.gauges {
+  margin-right: 3%;
 }
 
 .reset {
   display: none;
 }
 
-.top, .bottom, .gif {
+.top, .bottom, .gif, .row, .graphs {
   display: none;
 }
 
@@ -30,4 +34,29 @@ a {
 
 .right {
   float: right;
+}
+
+/*bargraphy*/
+
+.bar {
+  fill: #178BCA;
+}
+
+.bar:hover {
+  fill: steelblue;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
 }

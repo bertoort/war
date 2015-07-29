@@ -5,9 +5,32 @@ block content
   h3= title
   form.form
     label Number of Two-Player Games:
-      input.games(type='number', value=100, max='10000', min='10')
+      input.games(type='number', value=1000, max='50000', min='10')
     input.analyze(type='submit', value='analyze!')
   form(action='/stats',method='post')
     input.reset(type='submit', value='reset')
   .gif
     img(src='/images/loading.gif' alt='loading' width='100px' height='100px')
+  .graphs
+    .graph1
+      h3 Total Averages
+    .graph2
+      h3 Starting Aces Distributions
+  .row
+    h3 Chance of Winning with Aces
+    .gauges
+      h5 zero aces
+      svg(id="zeroGauge" width='150px')
+    .gauges
+      h5 one ace
+      svg(id="oneGauge" width='150px')
+    .gauges
+      h5 two aces
+      svg(id="twoGauge" width='150px')
+    .gauges
+      h5 three aces
+      svg(id="threeGauge" width='150px')
+    .gauges
+      h5 four aces
+      svg(id="fourGauge" width='150px')
+    
