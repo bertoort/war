@@ -1,17 +1,18 @@
 extends layout
 
 block content
-  a.right(href='/stats') data stats
+  a.btn.btn-primary.right(href='/stats') data stats
   h3= title
-  form.form
+  form.form-inline.form
     label Number of players: 
-      input.number(type='number', value=2, max='9', min='2')
-    input.submit(type='submit', value='play!')
+      input.form-control.number(type='number', value=2, max='9', min='2')
+    p
+      input.btn.btn-primary.submit(type='submit', value='play!')
   form(method='post')
-    input.reset(type='submit', value='reset')
+    input#reset.btn.btn-primary(type='submit', value='reset')
   .result
-  a.bottom(href='#winner') see winner
+  a.btn.btn-info#bottom(href='#winner') see winner
   .game
   #winner
-  a.top(href='#top') back to top
+  a.btn.btn-info#backTop(href='#top') back to top
   

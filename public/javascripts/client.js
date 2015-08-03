@@ -508,18 +508,18 @@ if (submit) {
     war.startGame();
     var result = document.querySelector('.result');
     var info = document.createElement('div');
-    var p = document.createElement('h4');
+    var p = document.createElement('h3');
     info.setAttribute('class', 'info');
     p.innerHTML = 'rounds: '+ rounds + ' wars: ' + wars;
     info.appendChild(p);
     result.appendChild(info);
-    var reset = document.querySelector('.reset');
+    var reset = document.querySelector('#reset');
     reset.style.display = 'inline-block';
     var form = document.querySelector('.form');
     form.style.display = 'none';
-    var top = document.querySelector('.top');
+    var top = document.querySelector('#backTop');
     top.style.display = 'inline-block';
-    var bottom = document.querySelector('.bottom');
+    var bottom = document.querySelector('#bottom');
     bottom.style.display = 'inline-block';
     e.preventDefault();
   });
@@ -543,7 +543,7 @@ if (analyze) {
     xhr.open('get', '/simulate?games=' + gamesNumber)
     xhr.addEventListener('load', function () {
       var response = JSON.parse(xhr.response);
-      var reset = document.querySelector('.reset');
+      var reset = document.querySelector('#reset');
       var form = document.querySelector('.form');
       var graphs = document.querySelector('.graphs');
       gif.style.display = 'none';

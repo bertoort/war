@@ -1,14 +1,15 @@
 extends layout
 
 block content
-  a.right(href='/') simulator
+  a.btn.btn-primary.right(href='/') simulator
   h3= title
-  form.form
-    label Number of Two-Player Games:
-      input.games(type='number', value=1000, max='10000', min='10')
-    input.analyze(type='submit', value='analyze!')
+  form.form-inline.form
+    label Number of Two-Player Games: 
+      input.form-control.games(type='number', value=1000, max='10000', min='10')
+    p
+      input.btn.btn-primary.analyze(type='submit', value='analyze!')
   form(action='/stats',method='post')
-    input.reset(type='submit', value='reset')
+    input.btn.btn-primary#reset(type='submit', value='reset')
   .gif
     img(src='/images/loading.gif' alt='loading' width='100px' height='100px')
   .graphs
