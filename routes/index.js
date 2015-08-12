@@ -21,6 +21,7 @@ router.post('/stats', function(req, res, next) {
 router.get('/simulate', function(req, res, next) {
   var number = req.query.games;
   var response = game(number);
+  console.log(response);
   res.json(response)
 });
 
